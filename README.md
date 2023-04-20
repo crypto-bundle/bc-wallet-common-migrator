@@ -22,4 +22,3 @@ Options:
 ```bash
 go build -o bc-wallet-common-migrator ./cmd/... && mv bc-wallet-common-migrator $GOPATH/bin/
 ```
-
