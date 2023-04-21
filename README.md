@@ -2,7 +2,7 @@
 
 ### Install
 ```bash
-go install gitlab.heronodes.io/bc-platform/bc-wallet-common-migrator@latest
+go install gitlab.heronodes.io/bc-platform/bc-wallet-common-migrator/cmd@latest
 ```
 This will install the bc-wallet-common-migrator binary to your $GOPATH/bin directory.
 
