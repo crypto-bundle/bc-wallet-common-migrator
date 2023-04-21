@@ -3,9 +3,9 @@ package config
 import "flag"
 
 type CommandConfig struct {
-	Flags   *flag.FlagSet
-	Dir     string
-	EnvPath string
+	Flags            *flag.FlagSet
+	MigrationDirPath string
+	EnvFilePath      string
 }
 
 func (c *CommandConfig) GetCommandFlagArgs() []string {
@@ -13,9 +13,9 @@ func (c *CommandConfig) GetCommandFlagArgs() []string {
 }
 
 func (c *CommandConfig) GetCommandDir() string {
-	return c.Dir
+	return c.MigrationDirPath
 }
 
 func (c *CommandConfig) GetCommandEnvPath() string {
-	return c.EnvPath
+	return c.EnvFilePath
 }

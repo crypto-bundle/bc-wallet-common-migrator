@@ -49,8 +49,8 @@ func PrepareCommand(baseCfgSrv baseConfigService) (*CommandConfig, error) {
 
 	cmd.Flags.SetOutput(io.Discard)
 
-	cmd.Dir = *cmd.Flags.String("dir", "./migrations", "directory with migration files")
-	cmd.EnvPath = *cmd.Flags.String("envPath", ".env", "environment file with migration settings")
+	cmd.MigrationDirPath = *cmd.Flags.String("dir", "./migrations", "directory with migration files")
+	cmd.EnvFilePath = *cmd.Flags.String("envPath", ".env", "environment file with migration settings")
 
 	err := cmd.Flags.Parse(os.Args[1:])
 	if err != nil {
