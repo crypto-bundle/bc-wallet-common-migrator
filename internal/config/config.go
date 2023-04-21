@@ -1,8 +1,6 @@
 package config
 
 import (
-	"flag"
-
 	commonConfig "github.com/crypto-bundle/bc-wallet-common-lib-config/pkg/config"
 	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
@@ -13,12 +11,6 @@ import (
 type VaultWrappedConfig struct {
 	*commonVault.BaseConfig
 	*commonVaultTokenClient.AuthConfig
-}
-
-type Command struct {
-	Flags   *flag.FlagSet
-	Dir     string
-	EnvPath string
 }
 
 // Config for application
@@ -33,5 +25,5 @@ type Config struct {
 	// -------------------
 	// Internal configs
 	// -------------------
-	*Command
+	*CommandConfig
 }

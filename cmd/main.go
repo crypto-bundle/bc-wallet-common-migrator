@@ -74,8 +74,9 @@ func main() {
 
 	goose.SetLogger(zap.NewStdLog(loggerEntry.Named("goose.service")))
 
-	args := appCfg.Command.Flags.Args()
-	if err = goose.RunWithOptions(args[0], pgConn.Dbx.DB, appCfg.Command.Dir, args[1:]); err != nil {
+	commandArgs := appCfg.GetCommandFlagArgs()
+	err = goose.RunWithOptions(commandArgs[0], pgConn.Dbx.DB, appCfg.GetCommandDir(), commandArgs[1:])
+	if err != nil {
 		loggerEntry.Fatal(err.Error(), zap.Error(err))
 	}
 

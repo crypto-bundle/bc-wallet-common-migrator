@@ -42,8 +42,8 @@ func PrepareVault(ctx context.Context, baseCfgSrv baseConfigService) (*commonVau
 	return vaultSrv, nil
 }
 
-func PrepareCommand(baseCfgSrv baseConfigService) (*Command, error) {
-	cmd := &Command{
+func PrepareCommand(baseCfgSrv baseConfigService) (*CommandConfig, error) {
+	cmd := &CommandConfig{
 		Flags: flag.NewFlagSet("bc-wallet-common-migrator", flag.ContinueOnError),
 	}
 
@@ -58,7 +58,7 @@ func PrepareCommand(baseCfgSrv baseConfigService) (*Command, error) {
 	}
 
 	if baseCfgSrv.IsDev() {
-		loadErr := godotenv.Load(cmd.EnvPath)
+		loadErr := godotenv.Load(cmd.GetCommandEnvPath())
 		if loadErr != nil {
 			return nil, err
 		}
@@ -106,7 +106,7 @@ func Prepare(ctx context.Context,
 	}
 
 	wrappedConfig.BaseConfig = baseCfgSrv
-	wrappedConfig.Command = command
+	wrappedConfig.CommandConfig = command
 
 	return wrappedConfig, vaultSecretSrv, nil
 }
