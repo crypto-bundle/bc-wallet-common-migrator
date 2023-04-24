@@ -1,6 +1,18 @@
 package config
 
-import "flag"
+import (
+	"flag"
+)
+
+var (
+	CommandForbiddenFlags = map[string]struct{}{
+		"port":     {},
+		"host":     {},
+		"user":     {},
+		"password": {},
+		"dbname":   {},
+	}
+)
 
 type CommandConfig struct {
 	Flags            *flag.FlagSet

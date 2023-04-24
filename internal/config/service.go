@@ -3,8 +3,10 @@ package config
 import (
 	"context"
 	"flag"
+	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	commonConfig "github.com/crypto-bundle/bc-wallet-common-lib-config/pkg/config"
 	commonVault "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault"
@@ -43,6 +45,11 @@ func PrepareVault(ctx context.Context, baseCfgSrv baseConfigService) (*commonVau
 }
 
 func PrepareCommand(baseCfgSrv baseConfigService) (*CommandConfig, error) {
+	err := CheckForbiddenFlags()
+	if err != nil {
+		return nil, err
+	}
+
 	cmd := &CommandConfig{
 		Flags: flag.NewFlagSet("bc-wallet-common-migrator", flag.ContinueOnError),
 	}
@@ -52,7 +59,7 @@ func PrepareCommand(baseCfgSrv baseConfigService) (*CommandConfig, error) {
 	cmd.MigrationDirPath = *cmd.Flags.String("dir", "./migrations", "directory with migration files")
 	cmd.EnvFilePath = *cmd.Flags.String("envPath", ".env", "environment file with migration settings")
 
-	err := cmd.Flags.Parse(os.Args[1:])
+	err = cmd.Flags.Parse(os.Args[1:])
 	if err != nil {
 		return nil, err
 	}
@@ -65,6 +72,19 @@ func PrepareCommand(baseCfgSrv baseConfigService) (*CommandConfig, error) {
 	}
 
 	return cmd, nil
+}
+
+func CheckForbiddenFlags() error {
+	for _, arg := range os.Args[1:] {
+		if len(arg) > 1 && arg[0] == '-' {
+			flagName := strings.TrimLeft(arg[1:], "-")
+			if _, ok := CommandForbiddenFlags[flagName]; ok {
+				return fmt.Errorf("command contains forbidden flag: %s", flagName)
+			}
+		}
+	}
+
+	return nil
 }
 
 func Prepare(ctx context.Context,
