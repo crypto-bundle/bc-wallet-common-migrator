@@ -3,15 +3,11 @@ FROM golang:1.19-alpine AS gobuild
 ENV GO111MODULE on
 ENV GOSUMDB off
 # add go-base repo to exceptions as a private repository.
-ENV GOPRIVATE $GOPRIVATE,github.com/crypto-bundle
+ENV GOPRIVATE $GOPRIVATE,gitlab.heronodes.io/bc-platform
 
-# add private github token
-ARG GITHUB_TOKEN
 RUN apk add --no-cache bash git openssh build-base
-RUN if [ -z "$GITHUB_TOKEN"  ] ; then \
-    echo 'GITHUB_TOKEN not provided, please use docker build --build-arg GITHUB_TOKEN="xxxx"' \
-    ; else git config --global url."https://${GITHUB_TOKEN}:x-oauth-basic@github.com/".insteadOf "https://github.com/" \
-    ; fi
+RUN mkdir -p -m 0700 ~/.ssh && ssh-keyscan gitlab.heronodes.io >> ~/.ssh/known_hosts
+RUN git config --global url."git@gitlab.heronodes.io:".insteadOf "https://gitlab.heronodes.io/"
 
 WORKDIR /src
 
@@ -25,6 +21,7 @@ ARG RACE=-race
 ARG CGO=1
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=ssh \
     mkdir -p /src/bin && \
     GOOS=linux CGO_ENABLED=${CGO} go build ${RACE} -v -installsuffix cgo -o ./bin/migrator -ldflags "-linkmode external -extldflags -static -s -w" ./cmd
 
