@@ -2,21 +2,13 @@ module gitlab.heronodes.io/bc-platform/bc-wallet-common-migrator
 
 go 1.20
 
-replace github.com/crypto-bundle/bc-wallet-common-lib-config => gitlab.heronodes.io/bc-platform/bc-wallet-common-lib-config v0.1.9
-
-replace github.com/crypto-bundle/bc-wallet-common-lib-vault => gitlab.heronodes.io/bc-platform/bc-wallet-common-lib-vault v0.0.13
-
-replace github.com/crypto-bundle/bc-wallet-common-lib-logger => gitlab.heronodes.io/bc-platform/bc-wallet-common-lib-logger v0.0.11
-
-replace github.com/crypto-bundle/bc-wallet-common-lib-postgres => gitlab.heronodes.io/bc-platform/bc-wallet-common-lib-postgres v0.0.5
-
 require (
-	github.com/crypto-bundle/bc-wallet-common-lib-config v0.0.16
-	github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.10
-	github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.0-00010101000000-000000000000
-	github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.12
 	github.com/joho/godotenv v1.5.1
 	github.com/pressly/goose/v3 v3.10.0
+	gitlab.heronodes.io/bc-platform/bc-wallet-common-lib-config v0.1.10
+	gitlab.heronodes.io/bc-platform/bc-wallet-common-lib-logger v0.0.12
+	gitlab.heronodes.io/bc-platform/bc-wallet-common-lib-postgres v0.0.8
+	gitlab.heronodes.io/bc-platform/bc-wallet-common-lib-vault v0.0.14
 	go.uber.org/zap v1.21.0
 )
 

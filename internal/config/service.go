@@ -8,9 +8,9 @@ import (
 	"os"
 	"strings"
 
-	commonConfig "github.com/crypto-bundle/bc-wallet-common-lib-config/pkg/config"
-	commonVault "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault"
-	commonVaultTokenClient "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault/client/token"
+	commonConfig "gitlab.heronodes.io/bc-platform/bc-wallet-common-lib-config/pkg/config"
+	commonVault "gitlab.heronodes.io/bc-platform/bc-wallet-common-lib-vault/pkg/vault"
+	commonVaultTokenClient "gitlab.heronodes.io/bc-platform/bc-wallet-common-lib-vault/pkg/vault/client/token"
 
 	"github.com/joho/godotenv"
 )

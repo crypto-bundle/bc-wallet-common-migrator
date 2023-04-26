@@ -6,8 +6,8 @@ import (
 
 	"gitlab.heronodes.io/bc-platform/bc-wallet-common-migrator/internal/config"
 
-	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
-	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
+	commonLogger "gitlab.heronodes.io/bc-platform/bc-wallet-common-lib-logger/pkg/logger"
+	commonPostgres "gitlab.heronodes.io/bc-platform/bc-wallet-common-lib-postgres/pkg/postgres"
 
 	"github.com/pressly/goose/v3"
 	"go.uber.org/zap"
