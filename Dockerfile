@@ -1,13 +1,14 @@
-FROM golang:1.19-alpine AS gobuild
+FROM golang:1.20-alpine AS gobuild
 
 ENV GO111MODULE on
 ENV GOSUMDB off
 # add go-base repo to exceptions as a private repository.
 ENV GOPRIVATE $GOPRIVATE,gitlab.heronodes.io/bc-platform
 
-RUN apk add --no-cache bash git openssh build-base
-RUN mkdir -p -m 0700 ~/.ssh && ssh-keyscan gitlab.heronodes.io >> ~/.ssh/known_hosts
-RUN git config --global url."git@gitlab.heronodes.io:".insteadOf "https://gitlab.heronodes.io/"
+RUN apk add --no-cache git openssh build-base && \
+    mkdir -p -m 0700 ~/.ssh && \
+    ssh-keyscan gitlab.heronodes.io >> ~/.ssh/known_hosts && \
+    git config --global url."git@gitlab.heronodes.io:".insteadOf "https://gitlab.heronodes.io/"
 
 WORKDIR /src
 
