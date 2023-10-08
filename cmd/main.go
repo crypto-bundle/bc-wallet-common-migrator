@@ -57,19 +57,19 @@ func main() {
 		CommitID, ShortCommitID,
 		BuildNumber, BuildDateTS, ApplicationName)
 	if err != nil {
-		log.Fatal(err.Error(), err)
+		log.Fatal("unable prepare application config", err)
 	}
 
 	loggerSrv, err := commonLogger.NewService(appCfg)
 	if err != nil {
-		log.Fatal(err.Error(), err)
+		log.Fatal("unable create logger service", err)
 	}
 	loggerEntry := loggerSrv.NewLoggerEntry("main")
 
 	pgConn := commonPostgres.NewConnection(context.Background(), appCfg, loggerEntry)
 	_, err = pgConn.Connect()
 	if err != nil {
-		loggerEntry.Fatal(err.Error(), zap.Error(err))
+		loggerEntry.Fatal("unable to connect to to database", zap.Error(err))
 	}
 
 	goose.SetLogger(zap.NewStdLog(loggerEntry.Named("goose.service")))
@@ -77,7 +77,7 @@ func main() {
 	commandArgs := appCfg.GetCommandFlagArgs()
 	err = goose.RunWithOptions(commandArgs[0], pgConn.Dbx.DB, appCfg.GetCommandDir(), commandArgs[1:])
 	if err != nil {
-		loggerEntry.Fatal(err.Error(), zap.Error(err))
+		loggerEntry.Fatal("unable to run goose migration", zap.Error(err))
 	}
 
 	cancelCtxFunc()

@@ -15,9 +15,7 @@ var (
 )
 
 type CommandConfig struct {
-	Flags            *flag.FlagSet
-	MigrationDirPath string
-	EnvFilePath      string
+	Flags *flag.FlagSet
 }
 
 func (c *CommandConfig) GetCommandFlagArgs() []string {
@@ -25,9 +23,9 @@ func (c *CommandConfig) GetCommandFlagArgs() []string {
 }
 
 func (c *CommandConfig) GetCommandDir() string {
-	return c.MigrationDirPath
+	return c.Flags.Lookup(MigrationDirParameterName).Value.String()
 }
 
 func (c *CommandConfig) GetCommandEnvPath() string {
-	return c.EnvFilePath
+	return c.Flags.Lookup(EnvFileParameterName).Value.String()
 }
