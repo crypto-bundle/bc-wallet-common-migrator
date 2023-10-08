@@ -1,6 +1,6 @@
 module gitlab.heronodes.io/bc-platform/bc-wallet-common-migrator
 
-go 1.20
+go 1.19
 
 require (
 	github.com/joho/godotenv v1.5.1

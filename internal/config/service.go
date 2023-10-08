@@ -15,6 +15,11 @@ import (
 	"github.com/joho/godotenv"
 )
 
+const (
+	MigrationDirParameterName = "dir"
+	EnvFileParameterName      = "envPath"
+)
+
 func PrepareVault(ctx context.Context, baseCfgSrv baseConfigService) (*commonVault.Service, error) {
 	cfgPreparerSrv := commonConfig.NewConfigManager()
 	vaultCfg := &VaultWrappedConfig{
@@ -56,10 +61,15 @@ func PrepareCommand(baseCfgSrv baseConfigService) (*CommandConfig, error) {
 
 	cmd.Flags.SetOutput(io.Discard)
 
-	cmd.MigrationDirPath = *cmd.Flags.String("dir", "./migrations", "directory with migration files")
-	cmd.EnvFilePath = *cmd.Flags.String("envPath", ".env", "environment file with migration settings")
+	dirPath := ""
+	cmd.Flags.StringVar(&dirPath, MigrationDirParameterName, "./migrations", "directory with migration files")
 
-	err = cmd.Flags.Parse(os.Args[1:])
+	envFilePath := ""
+	cmd.Flags.StringVar(&envFilePath, EnvFileParameterName, ".env", "environment file with migration settings")
+
+	args := os.Args[1:]
+
+	err = cmd.Flags.Parse(args)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +77,7 @@ func PrepareCommand(baseCfgSrv baseConfigService) (*CommandConfig, error) {
 	if baseCfgSrv.IsDev() {
 		loadErr := godotenv.Load(cmd.GetCommandEnvPath())
 		if loadErr != nil {
-			return nil, err
+			return nil, loadErr
 		}
 	}
 
