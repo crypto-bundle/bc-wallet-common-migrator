@@ -29,11 +29,11 @@ build_container:
 	docker build \
 		--ssh default=$(SSH_AUTH_SOCK) \
 		--platform $(platform) \
-		--arg RELEASE_TAG=$(release_tag) \
-		--arg COMMIT_ID=$(commit_id) \
-		--arg SHORT_COMMIT_ID=$(short_commit_id) \
-		--arg BUILD_NUMBER=$(build_number) \
-		--arg BUILD_DATE_TS=$(build_date) \
+		--build-arg RELEASE_TAG=$(release_tag) \
+		--build-arg COMMIT_ID=$(commit_id) \
+		--build-arg SHORT_COMMIT_ID=$(short_commit_id) \
+		--build-arg BUILD_NUMBER=$(build_number) \
+		--build-arg BUILD_DATE_TS=$(build_date) \
 		--tag $(container_registry):$(build_tag) . \
 		--tag $(container_registry)
 
