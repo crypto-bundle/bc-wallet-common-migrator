@@ -20,9 +20,20 @@ build_container:
 	$(eval container_registry=$(repository)/crypto-bundle/bc-wallet-common-migrator)
 	$(eval platform=$(or $(platform),linux/amd64))
 
+	$(eval short_commit_id=$(shell git rev-parse --short HEAD))
+	$(eval commit_id=$(shell git rev-parse HEAD))
+	$(eval build_number=0)
+	$(eval build_date=$(shell date +%s))
+	$(eval release_tag=$(shell git describe --tags $(commit_id))-$(short_commit_id)-$(build_number))
+
 	docker build \
 		--ssh default=$(SSH_AUTH_SOCK) \
 		--platform $(platform) \
+		--arg RELEASE_TAG=$(release_tag) \
+		--arg COMMIT_ID=$(commit_id) \
+		--arg SHORT_COMMIT_ID=$(short_commit_id) \
+		--arg BUILD_NUMBER=$(build_number) \
+		--arg BUILD_DATE_TS=$(build_date) \
 		--tag $(container_registry):$(build_tag) . \
 		--tag $(container_registry)
 
