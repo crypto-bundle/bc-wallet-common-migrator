@@ -8,9 +8,9 @@ import (
 	"os"
 	"strings"
 
-	commonConfig "gitlab.heronodes.io/bc-platform/bc-wallet-common-lib-config/pkg/config"
-	commonVault "gitlab.heronodes.io/bc-platform/bc-wallet-common-lib-vault/pkg/vault"
-	commonVaultTokenClient "gitlab.heronodes.io/bc-platform/bc-wallet-common-lib-vault/pkg/vault/client/token"
+	commonConfig "github.com/crypto-bundle/bc-wallet-common-lib-config/pkg/config"
+	commonVault "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault"
+	commonVaultTokenClient "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault/client/token"
 
 	"github.com/joho/godotenv"
 )
@@ -74,11 +74,19 @@ func PrepareCommand(baseCfgSrv baseConfigService) (*CommandConfig, error) {
 		return nil, err
 	}
 
-	if baseCfgSrv.IsDev() {
+	// TODO: Add env path validation
+	if cmd.GetCommandEnvPath() != "" {
 		loadErr := godotenv.Load(cmd.GetCommandEnvPath())
 		if loadErr != nil {
 			return nil, loadErr
 		}
+
+		return cmd, nil
+	}
+
+	err = commonConfig.LoadLocalEnvIfDev()
+	if err != nil {
+		return nil, err
 	}
 
 	return cmd, nil
@@ -98,15 +106,14 @@ func CheckForbiddenFlags() error {
 }
 
 func Prepare(ctx context.Context,
-	version,
 	releaseTag,
 	commitID,
-	shortCommitID string,
+	shortCommitID,
 	buildNumber,
-	buildDateTS uint64,
+	buildDateTS,
 	applicationName string,
 ) (*Config, *commonVault.Service, error) {
-	baseCfgSrv, err := PrepareBaseConfig(ctx, version, releaseTag,
+	baseCfgSrv, err := PrepareBaseConfig(ctx, releaseTag,
 		commitID, shortCommitID,
 		buildNumber, buildDateTS, applicationName)
 	if err != nil {
@@ -142,21 +149,23 @@ func Prepare(ctx context.Context,
 }
 
 func PrepareBaseConfig(ctx context.Context,
-	version,
 	releaseTag,
 	commitID,
-	shortCommitID string,
+	shortCommitID,
 	buildNumber,
-	buildDateTS uint64,
+	buildDateTS,
 	applicationName string,
 ) (*commonConfig.BaseConfig, error) {
-	flagManagerSrv := commonConfig.NewLdFlagsManager(version, releaseTag,
+	flagManagerSrv, err := commonConfig.NewLdFlagsManager(releaseTag,
 		commitID, shortCommitID,
 		buildNumber, buildDateTS)
+	if err != nil {
+		return nil, err
+	}
 
 	baseCfgPreparerSrv := commonConfig.NewConfigManager()
 	baseCfg := commonConfig.NewBaseConfig(applicationName)
-	err := baseCfgPreparerSrv.PrepareTo(baseCfg).With(flagManagerSrv).Do(ctx)
+	err = baseCfgPreparerSrv.PrepareTo(baseCfg).With(flagManagerSrv).Do(ctx)
 	if err != nil {
 		return nil, err
 	}
