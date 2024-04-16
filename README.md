@@ -6,7 +6,7 @@ Bc-wallet-common-migrator is a database migration tool based on the [Goose libra
 
 ### Install
 ```bash
-go install gitlab.heronodes.io/bc-platform/bc-wallet-common-migrator/cmd@latest
+go install github.com/crypto-bundle/bc-wallet-common-migrator/cmd@latest
 ```
 This will install the bc-wallet-common-migrator binary to your $GOPATH/bin directory.
 
@@ -30,9 +30,9 @@ go build -o bc-wallet-common-migrator ./cmd/... && mv bc-wallet-common-migrator 
 
 ## Contributors
 
-* Author and maintainer - [@gudron (Alex V Kotelnikov)](https://github.com/gudron)
-* Maintainer - [@d.burnyshev (Dmitry R Burnyshev)](https://gitlab.heronodes.io/d.burnyshev)
+* Maintainer - [@gudron (Alex V Kotelnikov)](https://github.com/gudron)
+* Author [@d.burnyshev (Dmitry R Burnyshev)](https://github.com/qrinef)
 
 ## Licence
 
-Proprietary license
+**bc-wallet-common-migrator** is licensed under the [MIT](./LICENSE) License.
