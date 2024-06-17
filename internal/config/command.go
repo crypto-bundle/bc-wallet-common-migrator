@@ -26,6 +26,12 @@ func (c *CommandConfig) GetCommandDir() string {
 	return c.Flags.Lookup(MigrationDirParameterName).Value.String()
 }
 
-func (c *CommandConfig) GetCommandEnvPath() string {
-	return c.Flags.Lookup(EnvFileParameterName).Value.String()
+func (c *CommandConfig) GetCommandEnvPath() *string {
+	lookUp := c.Flags.Lookup(EnvFileParameterName)
+	if lookUp == nil {
+		return nil
+	}
+
+	value := lookUp.Value.String()
+	return &value
 }

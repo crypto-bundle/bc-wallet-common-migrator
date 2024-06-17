@@ -1,9 +1,9 @@
 # Change Log
 
-## [v0.0.1] - 11.05.2023
-### Added
-* Added goose migration tool wrapper
-* Added build flow for docker container and local development
+## [v0.0.3] - 17.06.2024
+### Changed
+* Changed CLI arguments init flow
+* Updated lib-vault version to 0.0.15
 
 ## [v0.0.2] - 16.04.2024
 ### Added
@@ -15,3 +15,8 @@
   * bc-wallet-common-lib-logger
   * bc-wallet-common-lib-postgres
   * bc-wallet-common-lib-vault
+
+## [v0.0.1] - 11.05.2023
+### Added
+* Added goose migration tool wrapper
+* Added build flow for docker container and local development
