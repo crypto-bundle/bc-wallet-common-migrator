@@ -65,7 +65,7 @@ func PrepareCommand(baseCfgSrv baseConfigService) (*CommandConfig, error) {
 	cmd.Flags.StringVar(&dirPath, MigrationDirParameterName, "./migrations", "directory with migration files")
 
 	envFilePath := ""
-	cmd.Flags.StringVar(&envFilePath, EnvFileParameterName, ".env", "environment file with migration settings")
+	cmd.Flags.StringVar(&envFilePath, EnvFileParameterName, "", "environment file with migration settings")
 
 	args := os.Args[1:]
 
@@ -75,18 +75,14 @@ func PrepareCommand(baseCfgSrv baseConfigService) (*CommandConfig, error) {
 	}
 
 	// TODO: Add env path validation
-	if cmd.GetCommandEnvPath() != "" {
-		loadErr := godotenv.Load(cmd.GetCommandEnvPath())
+	envPath := cmd.GetCommandEnvPath()
+	if envPath != nil && *envPath != "" {
+		loadErr := godotenv.Load(*envPath)
 		if loadErr != nil {
 			return nil, loadErr
 		}
 
 		return cmd, nil
-	}
-
-	err = commonConfig.LoadLocalEnvIfDev()
-	if err != nil {
-		return nil, err
 	}
 
 	return cmd, nil
