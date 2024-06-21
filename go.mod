@@ -5,8 +5,8 @@ go 1.22
 require (
 	github.com/crypto-bundle/bc-wallet-common-lib-config v0.0.5
 	github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.4
-	github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.8
-	github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.15
+	github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.9
+	github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.17
 	github.com/joho/godotenv v1.5.1
 	github.com/pressly/goose/v3 v3.19.2
 	go.uber.org/zap v1.27.0
@@ -27,8 +27,8 @@ require (
 	github.com/hashicorp/go-sockaddr v1.0.6 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/vault/api v1.13.0 // indirect
-	github.com/jmoiron/sqlx v1.3.4 // indirect
-	github.com/lib/pq v1.10.7 // indirect
+	github.com/jmoiron/sqlx v1.4.0 // indirect
+	github.com/lib/pq v1.10.9 // indirect
 	github.com/mfridman/interpolate v0.0.2 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect

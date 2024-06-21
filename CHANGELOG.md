@@ -1,5 +1,12 @@
 # Change Log
 
+## [v0.0.4] - 21.06.2024
+### Changed
+* Changed config init flow
+* Bump common-lib-vault version - bc-wallet-common-lib-vault v0.0.17
+  * Added new environment variables VAULT_AUTH_TOKEN_FILE_PATH and VAULT_AUTH_TOKEN_RENEW_TTL to *-example.env files
+  * Implemented new vault client init flow
+
 ## [v0.0.3] - 17.06.2024
 ### Changed
 * Changed CLI arguments init flow
