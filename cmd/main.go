@@ -48,26 +48,32 @@ func main() {
 	var err error
 	ctx, cancelCtxFunc := context.WithCancel(context.Background())
 
-	appCfg, _, err := config.Prepare(ctx, ReleaseTag,
+	wrappedBaseCfg, err := config.PrepareBaseConfig(ctx, ApplicationName, ReleaseTag,
 		CommitID, ShortCommitID,
-		BuildNumber, BuildDateTS, ApplicationName)
+		BuildNumber, BuildDateTS)
 	if err != nil {
-		log.Fatal("unable prepare application config", err)
+		log.Fatal(err.Error(), err)
 	}
 
-	loggerSrv, err := commonLogger.NewService(appCfg)
+	loggerSvc, err := commonLogger.NewService(wrappedBaseCfg)
 	if err != nil {
-		log.Fatal("unable create logger service", err)
+		log.Fatal(err.Error(), err)
 	}
-	loggerEntry := loggerSrv.NewLoggerEntry("main")
+	loggerEntry := loggerSvc.NewLoggerEntry("migrator")
 
-	pgConn := commonPostgres.NewConnection(ctx, appCfg, loggerEntry)
+	appCfg, _, err := config.PrepareAppCfg(ctx, wrappedBaseCfg,
+		zap.NewStdLog(loggerEntry))
+	if err != nil {
+		log.Fatal(err.Error(), err)
+	}
+
+	pgConn := commonPostgres.NewConnection(ctx, appCfg, zap.NewStdLog(loggerEntry))
 	_, err = pgConn.Connect()
 	if err != nil {
 		loggerEntry.Fatal("unable to connect to to database", zap.Error(err))
 	}
 
-	goose.SetLogger(zap.NewStdLog(loggerEntry.Named("migrator")))
+	goose.SetLogger(zap.NewStdLog(loggerEntry))
 
 	commandArgs := appCfg.GetCommandFlagArgs()
 	err = goose.RunWithOptionsContext(ctx, commandArgs[0],
