@@ -1,5 +1,8 @@
 # Change Log
 
+## [v0.0.5] - 02.07.2024
+* Added migrator library Helm-chart
+
 ## [v0.0.4] - 21.06.2024
 ### Changed
 * Changed config init flow

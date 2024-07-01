@@ -1,0 +1,166 @@
+# Copyright (c) 2023-2024 Aleksei Kotelnikov(gudron2s@gmail.com)
+# License: MIT NON-AI
+
+mgrtr:
+  replicaCount: 1
+
+  resources:
+    limits:
+      cpu: 2500m
+      memory: 128Mi
+    requests:
+      cpu: 500m
+      memory: 96Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 3
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  nameOverride: "bc-wallet-common-mgrtr"
+  fullnameOverride: ""
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: "cryptobundle-bc-wallet-common-mgrtr"
+
+  podSecurityContext: {}
+  # fsGroup: 2000
+
+  environment:
+    _default: staging
+    test: testing
+    production: production
+
+  debug_mode:
+    _default: true
+    test: true
+    production: false
+
+  logger:
+    enabled_stack_trace:
+      _default: false
+      production: true
+
+    minimal_level:
+      _default: debug
+      test: debug
+      production: error
+
+  stage:
+    name:
+      _default: dev
+      test: test
+      production: prod
+
+  securityContext:
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1000
+
+  imagePullSecrets: []
+
+  jobAnnotations: {}
+
+  podAnnotations: {}
+
+  hook:
+    enabled: false
+    weight: -5
+
+  db:
+    host:
+      _default: "postgresql.default.svc.cluster.local"
+    port:
+      _default: 5432
+    ssl_mode:
+      _default: disable
+    name:
+      _default: bc-wallet-common-mgrtr
+    schema:
+      _default: bc-wallet-common-mgrtr
+    open_connections:
+      _default: 4
+      production: 8
+    idle_connections:
+      _default: 4
+      production: 8
+    connection_retry_count:
+      _default: 12
+      production: 8
+    connection_retry_timeout:
+      _default: 12000
+      production: 5000
+
+  env:
+    file_name:
+      _default: /vault/secrets/env
+
+  image:
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    path: repository.local/crypto-bundle/bc-wallet-common-mgrtr
+    tag: latest
+
+  migration_dir: /opt/bc-wallet-common-migrator/migrations
+
+  vault:
+    host:
+      _default: "vault.default.svc.cluster.local"
+    port:
+      _default: 8200
+    use_https:
+      _default: false
+
+    agent:
+      inject:
+        _default: true
+
+      role:
+        _default: cryptobundle-bc-wallet-common-trrfrm-worker
+
+      inject_perms:
+        _default: 664
+
+      inject_token:
+        _default: true
+
+      inject_secret_path: 'kv/data/crypto-bundle/bc-wallet-common/trrfrm/worker'
+
+      inject_template: |
+        {{- with secret "kv/data/crypto-bundle/bc-wallet-common/trrfrm/worker" -}}
+        PGPASSWORD="{{ .Data.data.POSTGRESQL_PASSWORD }}"
+        PGUSER="{{ .Data.data.POSTGRESQL_USERNAME }}"
+        {{- end -}}
+
+      init_first:
+        _default: true
+
+      pre_populate:
+        _default: true
+
+    auth_method:
+      _default: token
+
+    token_path:
+      _default: /vault/secrets/token
+
+    data_path:
+      _default:
+        - kv/data/crypto-bundle/bc-wallet-ethereum-hdwallet/common
+        - kv/data/crypto-bundle/bc-wallet-ethereum-hdwallet/migrator
+
+  cli_arguments:
+    - name: "k8s_namespace"
+      value: "{{ .Release.Namespace }}"
+    - name: "customer_name"
+      value: "{{ .Values.terraformer.customer.name }}"
