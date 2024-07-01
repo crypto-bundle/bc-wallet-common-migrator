@@ -126,7 +126,7 @@ mgrtr:
         _default: true
 
       role:
-        _default: cryptobundle-bc-wallet-common-trrfrm-worker
+        _default: cryptobundle-bc-wallet-common-mgrtr
 
       inject_perms:
         _default: 664
@@ -134,12 +134,12 @@ mgrtr:
       inject_token:
         _default: true
 
-      inject_secret_path: 'kv/data/crypto-bundle/bc-wallet-common/trrfrm/worker'
+      inject_secret_path: 'kv/data/crypto-bundle/bc-wallet-some-application/mgrtr'
 
       inject_template: |
-        {{- with secret "kv/data/crypto-bundle/bc-wallet-common/trrfrm/worker" -}}
-        PGPASSWORD="{{ .Data.data.POSTGRESQL_PASSWORD }}"
-        PGUSER="{{ .Data.data.POSTGRESQL_USERNAME }}"
+        {{- with secret "kv/data/crypto-bundle/bc-wallet-some-application/mgrtr" -}}
+        POSTGRESQL_USERNAME="{{ .Data.data.POSTGRESQL_PASSWORD }}"
+        POSTGRESQL_PASSWORD="{{ .Data.data.POSTGRESQL_USERNAME }}"
         {{- end -}}
 
       init_first:
@@ -156,8 +156,8 @@ mgrtr:
 
     data_path:
       _default:
-        - kv/data/crypto-bundle/bc-wallet-ethereum-hdwallet/common
-        - kv/data/crypto-bundle/bc-wallet-ethereum-hdwallet/migrator
+        - kv/data/crypto-bundle/bc-wallet-some-application/common
+        - kv/data/crypto-bundle/bc-wallet-some-application/mgrtr
 
   cli_arguments:
     - name: "k8s_namespace"
