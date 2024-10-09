@@ -3,10 +3,11 @@ module github.com/crypto-bundle/bc-wallet-common-migrator
 go 1.22
 
 require (
-	github.com/crypto-bundle/bc-wallet-common-lib-config v0.0.5
-	github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.4
-	github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.9
-	github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.17
+	github.com/crypto-bundle/bc-wallet-common-lib-config v0.0.7
+	github.com/crypto-bundle/bc-wallet-common-lib-errors v0.0.8
+	github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.11
+	github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.10
+	github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.19
 	github.com/joho/godotenv v1.5.1
 	github.com/pressly/goose/v3 v3.19.2
 	go.uber.org/zap v1.27.0

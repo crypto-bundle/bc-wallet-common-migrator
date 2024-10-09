@@ -1,7 +1,14 @@
 # Change Log
 
-## [v0.0.5] - 02.07.2024
+## [v0.0.5] - 02.09.2024
+### Added
 * Added migrator library Helm-chart
+* Added support of new version of bc-wallet-common-lib-errors
+* Added support of new version of bc-wallet-common-lib-logger
+* Bump common-lib-* versions:
+  * bc-wallet-common-lib-vault v0.0.19
+  * bc-wallet-common-lib-config v0.0.7
+  * bc-wallet-common-lib-postgres v0.0.10
 
 ## [v0.0.4] - 21.06.2024
 ### Changed

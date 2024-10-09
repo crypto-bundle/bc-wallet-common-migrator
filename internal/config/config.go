@@ -15,12 +15,38 @@ type Config struct {
 	*commonLogger.LoggerConfig
 	*commonPostgres.PostgresConfig
 	*VaultWrappedConfig
-	// -------------------
-	// Internal configs
-	// -------------------
-	*CommandConfig
 	// ----------------------------
 	// Dependencies
 	baseAppCfgSvc baseConfigService
 	loggerCfgSvc  loggerCfgService
+	commandCfgSvc commandConfigService
+}
+
+func (c *Config) GetCommandFlagArgs() []string {
+	return c.commandCfgSvc.GetCommandFlagArgs()
+}
+
+func (c *Config) GetCommandDir() string {
+	return c.commandCfgSvc.GetCommandDir()
+}
+
+func (c *Config) GetCommandEnvPath() *string {
+	return c.commandCfgSvc.GetCommandEnvPath()
+}
+
+func (c *Config) PrepareWith(dependentCfgList ...interface{}) error {
+	for _, cfgSrv := range dependentCfgList {
+		switch castedDep := cfgSrv.(type) {
+		case baseConfigService:
+			c.baseAppCfgSvc = castedDep
+		case loggerCfgService:
+			c.loggerCfgSvc = castedDep
+		case commandConfigService:
+			c.commandCfgSvc = castedDep
+		default:
+			continue
+		}
+	}
+
+	return nil
 }

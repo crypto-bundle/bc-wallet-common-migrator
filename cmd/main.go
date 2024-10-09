@@ -6,6 +6,7 @@ import (
 
 	"github.com/crypto-bundle/bc-wallet-common-migrator/internal/config"
 
+	commonErrors "github.com/crypto-bundle/bc-wallet-common-lib-errors/pkg/errformatter"
 	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
 
@@ -48,32 +49,38 @@ func main() {
 	var err error
 	ctx, cancelCtxFunc := context.WithCancel(context.Background())
 
-	wrappedBaseCfg, err := config.PrepareBaseConfig(ctx, ApplicationName, ReleaseTag,
+	cfgErrFmtSvc := commonErrors.NewScopedErrorFormatter("config")
+
+	wrappedBaseCfg, err := config.PrepareBaseConfig(ctx, cfgErrFmtSvc,
+		ApplicationName, ReleaseTag,
 		CommitID, ShortCommitID,
 		BuildNumber, BuildDateTS)
 	if err != nil {
 		log.Fatal(err.Error(), err)
 	}
 
-	loggerSvc, err := commonLogger.NewService(wrappedBaseCfg)
-	if err != nil {
-		log.Fatal(err.Error(), err)
-	}
-	loggerEntry := loggerSvc.NewLoggerEntry("migrator")
-
-	appCfg, _, err := config.PrepareAppCfg(ctx, wrappedBaseCfg,
-		zap.NewStdLog(loggerEntry))
+	loggerSvc, err := commonLogger.NewService(wrappedBaseCfg,
+		commonErrors.NewScopedErrorFormatter("logger"))
 	if err != nil {
 		log.Fatal(err.Error(), err)
 	}
 
-	pgConn := commonPostgres.NewConnection(ctx, appCfg, zap.NewStdLog(loggerEntry))
+	loggerEntry := loggerSvc.NewZapNamedLoggerEntry("migrator")
+
+	appCfg, _, err := config.PrepareAppCfg(ctx, loggerSvc, cfgErrFmtSvc, wrappedBaseCfg)
+	if err != nil {
+		log.Fatal(err.Error(), err)
+	}
+
+	pgConn := commonPostgres.NewConnection(ctx, loggerSvc,
+		commonErrors.NewScopedErrorFormatter("postgres"),
+		appCfg)
 	_, err = pgConn.Connect()
 	if err != nil {
 		loggerEntry.Fatal("unable to connect to to database", zap.Error(err))
 	}
 
-	goose.SetLogger(zap.NewStdLog(loggerEntry))
+	goose.SetLogger(loggerSvc.NewStdNamedLoggerEntry("goose"))
 
 	commandArgs := appCfg.GetCommandFlagArgs()
 	err = goose.RunWithOptionsContext(ctx, commandArgs[0],

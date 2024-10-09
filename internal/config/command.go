@@ -5,6 +5,8 @@ import (
 )
 
 var (
+	_ commandConfigService = (*CommandConfig)(nil)
+
 	CommandForbiddenFlags = map[string]struct{}{
 		"port":     {},
 		"host":     {},
