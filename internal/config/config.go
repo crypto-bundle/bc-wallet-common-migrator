@@ -6,7 +6,7 @@ import (
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
 )
 
-// Config for application
+// Config for application...
 type Config struct {
 	// -------------------
 	// External common configs

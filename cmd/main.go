@@ -15,31 +15,31 @@ import (
 )
 
 // DO NOT EDIT THESE VARIABLES DIRECTLY. These are build-time constants
-// DO NOT USE THESE VARIABLES IN APPLICATION CODE. USE commonConfig.NewLdFlagsManager SERVICE-COMPONENT INSTEAD OF IT
+// DO NOT USE THESE VARIABLES IN APPLICATION CODE. USE commonConfig.NewLdFlagsManager SERVICE-COMPONENT INSTEAD OF IT...
 var (
 	// ReleaseTag - release tag in TAG.SHORT_COMMIT_ID.BUILD_NUMBER.
 	// DO NOT EDIT THIS VARIABLE DIRECTLY. These are build-time constants
-	// DO NOT USE THESE VARIABLES IN APPLICATION CODE
+	// DO NOT USE THESE VARIABLES IN APPLICATION CODE...
 	ReleaseTag = "v0.0.0-00000000-100500"
 
 	// CommitID - latest commit id.
 	// DO NOT EDIT THIS VARIABLE DIRECTLY. These are build-time constants
-	// DO NOT USE THESE VARIABLES IN APPLICATION CODE
+	// DO NOT USE THESE VARIABLES IN APPLICATION CODE...
 	CommitID = "0000000000000000000000000000000000000000"
 
 	// ShortCommitID - first 12 characters from CommitID.
 	// DO NOT EDIT THIS VARIABLE DIRECTLY. These are build-time constants
-	// DO NOT USE THESE VARIABLES IN APPLICATION CODE
+	// DO NOT USE THESE VARIABLES IN APPLICATION CODE...
 	ShortCommitID = "00000000"
 
 	// BuildNumber - ci/cd build number for BuildNumber
 	// DO NOT EDIT THIS VARIABLE DIRECTLY. These are build-time constants
-	// DO NOT USE THESE VARIABLES IN APPLICATION CODE
+	// DO NOT USE THESE VARIABLES IN APPLICATION CODE...
 	BuildNumber string = "100500"
 
 	// BuildDateTS - ci/cd build date in time stamp
 	// DO NOT EDIT THIS VARIABLE DIRECTLY. These are build-time constants
-	// DO NOT USE THESE VARIABLES IN APPLICATION CODE
+	// DO NOT USE THESE VARIABLES IN APPLICATION CODE...
 	BuildDateTS string = "1713280105"
 )
 
@@ -47,6 +47,7 @@ const ApplicationName = "bc-wallet-common-migrator"
 
 func main() {
 	var err error
+
 	ctx, cancelCtxFunc := context.WithCancel(context.Background())
 
 	cfgErrFmtSvc := commonErrors.NewScopedErrorFormatter("config")
@@ -75,14 +76,16 @@ func main() {
 	pgConn := commonPostgres.NewConnection(ctx, loggerSvc,
 		commonErrors.NewScopedErrorFormatter("postgres"),
 		appCfg)
+
 	_, err = pgConn.Connect()
 	if err != nil {
-		loggerEntry.Fatal("unable to connect to to database", zap.Error(err))
+		loggerEntry.Fatal("unable to connect to database", zap.Error(err))
 	}
 
 	goose.SetLogger(loggerSvc.NewStdNamedLoggerEntry("goose"))
 
 	commandArgs := appCfg.GetCommandFlagArgs()
+
 	err = goose.RunWithOptionsContext(ctx, commandArgs[0],
 		pgConn.Dbx.DB, appCfg.GetCommandDir(), commandArgs[1:])
 	if err != nil {

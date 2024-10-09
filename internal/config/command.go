@@ -7,7 +7,7 @@ import (
 var (
 	_ commandConfigService = (*CommandConfig)(nil)
 
-	CommandForbiddenFlags = map[string]struct{}{
+	commandForbiddenFlags = map[string]struct{}{
 		"port":     {},
 		"host":     {},
 		"user":     {},
@@ -35,5 +35,6 @@ func (c *CommandConfig) GetCommandEnvPath() *string {
 	}
 
 	value := lookUp.Value.String()
+
 	return &value
 }

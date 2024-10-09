@@ -28,7 +28,7 @@ func PrepareLogger(ctx context.Context,
 
 	err := cfgPreparerSrv.PrepareTo(loggerCfg).With(baseCfgSvc).Do(ctx)
 	if err != nil {
-		return nil, err
+		return nil, errFmtSvc.ErrorNoWrap(err)
 	}
 
 	return loggerCfg, nil
@@ -50,26 +50,26 @@ func PrepareVault(ctx context.Context,
 		return nil, errFmtSvc.ErrorNoWrap(err)
 	}
 
-	vaultClientSrv, err := commonVaultTokenClient.NewClient(ctx, errFmtSvc, vaultCfg)
+	vaultClientSvc, err := commonVaultTokenClient.NewClient(ctx, errFmtSvc, vaultCfg)
 	if err != nil {
 		return nil, errFmtSvc.ErrorNoWrap(err)
 	}
 
-	vaultSrv, err := commonVault.NewService(loggerBuilderSvc, errFmtSvc, vaultCfg, vaultClientSrv)
+	vaultSvc, err := commonVault.NewService(loggerBuilderSvc, errFmtSvc, vaultCfg, vaultClientSvc)
 	if err != nil {
 		return nil, errFmtSvc.ErrorNoWrap(err)
 	}
 
-	_, err = vaultSrv.Login(ctx)
+	_, err = vaultSvc.Login(ctx)
 	if err != nil {
-		return nil, err
+		return nil, errFmtSvc.ErrorNoWrap(err)
 	}
 
-	return vaultSrv, nil
+	return vaultSvc, nil
 }
 
 func PrepareCommand() (*CommandConfig, error) {
-	err := CheckForbiddenFlags()
+	err := checkForbiddenFlags()
 	if err != nil {
 		return nil, err
 	}
@@ -96,13 +96,15 @@ func PrepareCommand() (*CommandConfig, error) {
 	return cmd, nil
 }
 
-func CheckForbiddenFlags() error {
+func checkForbiddenFlags() error {
 	for _, arg := range os.Args[1:] {
-		if len(arg) > 1 && arg[0] == '-' {
-			flagName := strings.TrimLeft(arg[1:], "-")
-			if _, ok := CommandForbiddenFlags[flagName]; ok {
-				return fmt.Errorf("command contains forbidden flag: %s", flagName)
-			}
+		if len(arg) == 0 || arg[0] != '-' {
+			continue
+		}
+
+		flagName := strings.TrimLeft(arg[1:], "-")
+		if _, ok := commandForbiddenFlags[flagName]; ok {
+			return fmt.Errorf("command contains forbidden flag: %s", flagName)
 		}
 	}
 
@@ -130,10 +132,11 @@ func PrepareAppCfg(ctx context.Context,
 
 	appCfgPreparerSrv := commonConfig.NewConfigManager(errFmtSvc)
 	appConfig := &Config{}
+
 	err = appCfgPreparerSrv.PrepareTo(appConfig).With(baseCfg,
 		loggerCfg, vaultSecretSvc, commandCfg).Do(ctx)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, errFmtSvc.ErrorNoWrap(err)
 	}
 
 	return appConfig, vaultSecretSvc, nil
@@ -170,6 +173,7 @@ func PrepareBaseConfig(ctx context.Context,
 
 	baseCfgPreparerSvc := commonConfig.NewConfigManager(errFmtSvc)
 	baseCfg := commonConfig.NewBaseConfig(applicationName)
+
 	err = baseCfgPreparerSvc.PrepareTo(baseCfg).With(flagManagerSvc, errFmtSvc).Do(ctx)
 	if err != nil {
 		return nil, errFmtSvc.ErrorNoWrap(err)

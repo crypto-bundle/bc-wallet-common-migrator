@@ -1,3 +1,6 @@
+lint:
+	golangci-lint run --config .golangci.yml -v ./...
+
 build_bin:
 	$(eval short_commit_id=$(shell git rev-parse --short HEAD))
 	$(eval commit_id=$(shell git rev-parse HEAD))
@@ -40,4 +43,4 @@ build_container:
 	docker push $(container_registry):$(build_tag)
 	docker push $(container_registry):latest
 
-.PHONY: build_container
+.PHONY: build_container lint
