@@ -1,6 +1,5 @@
 {{/*
-Copyright (c) 2023-2024 Aleksei Kotelnikov(gudron2s@gmail.com)
-License: MIT NON-AI
+Copyright (c) 2023-2025 Aleksei Kotelnikov(gudron2s@gmail.com)
 License: MIT NON-AI
 */}}
 
