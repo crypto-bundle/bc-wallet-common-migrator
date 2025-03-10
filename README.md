@@ -35,4 +35,4 @@ go build -o bc-wallet-common-migrator ./cmd/... && mv bc-wallet-common-migrator 
 
 ## Licence
 
-**bc-wallet-common-migrator** is licensed under the [MIT](./LICENSE) License.
+**bc-wallet-common-migrator** is licensed the [MIT NON-AI](./LICENSE) License.

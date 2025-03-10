@@ -20,3 +20,7 @@ env-*.env
 # Dependency directories (remove the comment below to include it)
 vendor/
 build/*
+
+deploy/k8s_secrets/*.yaml
+deploy/helm/*/values_local.yaml
+deploy/helm/*/charts

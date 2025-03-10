@@ -1,0 +1,1 @@
+# bc-wallet-common-mgrtr

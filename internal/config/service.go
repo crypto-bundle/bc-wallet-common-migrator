@@ -1,3 +1,35 @@
+/*
+ *
+ *
+ * MIT NON-AI License
+ *
+ * Copyright (c) 2022-2025 Aleksei Kotelnikov(gudron2s@gmail.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of the software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions.
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * In addition, the following restrictions apply:
+ *
+ * 1. The Software and any modifications made to it may not be used for the purpose of training or improving machine learning algorithms,
+ * including but not limited to artificial intelligence, natural language processing, or data mining. This condition applies to any derivatives,
+ * modifications, or updates based on the Software code. Any usage of the Software in an AI-training dataset is considered a breach of this License.
+ *
+ * 2. The Software may not be included in any dataset used for training or improving machine learning algorithms,
+ * including but not limited to artificial intelligence, natural language processing, or data mining.
+ *
+ * 3. Any person or organization found to be in violation of these restrictions will be subject to legal action and may be held liable
+ * for any damages resulting from such use.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+ * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
+
 package config
 
 import (
@@ -5,7 +37,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"strings"
 
@@ -13,8 +44,6 @@ import (
 	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
 	commonVault "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault"
 	commonVaultTokenClient "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault/client/token"
-
-	"github.com/joho/godotenv"
 )
 
 const (
@@ -23,53 +52,56 @@ const (
 )
 
 func PrepareLogger(ctx context.Context,
-	baseCfgSrv baseConfigService,
+	baseCfgSvc baseConfigService,
+	errFmtSvc errorFormatterService,
 ) (*commonLogger.LoggerConfig, error) {
-	cfgPreparerSrv := commonConfig.NewConfigManager()
+	cfgPreparerSrv := commonConfig.NewConfigManager(errFmtSvc)
 	loggerCfg := &commonLogger.LoggerConfig{}
 
-	err := cfgPreparerSrv.PrepareTo(loggerCfg).With(baseCfgSrv).Do(ctx)
+	err := cfgPreparerSrv.PrepareTo(loggerCfg).With(baseCfgSvc).Do(ctx)
 	if err != nil {
-		return nil, err
+		return nil, errFmtSvc.ErrorNoWrap(err)
 	}
 
 	return loggerCfg, nil
 }
 
 func PrepareVault(ctx context.Context,
-	baseCfgSrv baseConfigService,
-	stdLogger *log.Logger,
+	errFmtSvc errorFormatterService,
+	baseCfgSvc baseConfigService,
+	loggerBuilderSvc loggerService,
 ) (*commonVault.Service, error) {
-	cfgPreparerSrv := commonConfig.NewConfigManager()
+	cfgPreparerSrv := commonConfig.NewConfigManager(errFmtSvc)
 	vaultCfg := &VaultWrappedConfig{
 		BaseConfig: &commonVault.BaseConfig{},
 		AuthConfig: &commonVaultTokenClient.AuthConfig{},
 	}
-	err := cfgPreparerSrv.PrepareTo(vaultCfg).With(baseCfgSrv).Do(ctx)
+
+	err := cfgPreparerSrv.PrepareTo(vaultCfg).With(baseCfgSvc, errFmtSvc).Do(ctx)
 	if err != nil {
-		return nil, err
+		return nil, errFmtSvc.ErrorNoWrap(err)
 	}
 
-	vaultClientSrv, err := commonVaultTokenClient.NewClient(ctx, vaultCfg)
+	vaultClientSvc, err := commonVaultTokenClient.NewClient(ctx, errFmtSvc, vaultCfg)
 	if err != nil {
-		return nil, err
+		return nil, errFmtSvc.ErrorNoWrap(err)
 	}
 
-	vaultSrv, err := commonVault.NewService(stdLogger, vaultCfg, vaultClientSrv)
+	vaultSvc, err := commonVault.NewService(loggerBuilderSvc, errFmtSvc, vaultCfg, vaultClientSvc)
 	if err != nil {
-		return nil, err
+		return nil, errFmtSvc.ErrorNoWrap(err)
 	}
 
-	_, err = vaultSrv.Login(ctx)
+	_, err = vaultSvc.Login(ctx)
 	if err != nil {
-		return nil, err
+		return nil, errFmtSvc.ErrorNoWrap(err)
 	}
 
-	return vaultSrv, nil
+	return vaultSvc, nil
 }
 
 func PrepareCommand() (*CommandConfig, error) {
-	err := CheckForbiddenFlags()
+	err := checkForbiddenFlags()
 	if err != nil {
 		return nil, err
 	}
@@ -93,27 +125,18 @@ func PrepareCommand() (*CommandConfig, error) {
 		return nil, err
 	}
 
-	// TODO: Add env path validation
-	envPath := cmd.GetCommandEnvPath()
-	if envPath != nil && *envPath != "" {
-		loadErr := godotenv.Load(*envPath)
-		if loadErr != nil {
-			return nil, loadErr
-		}
-
-		return cmd, nil
-	}
-
 	return cmd, nil
 }
 
-func CheckForbiddenFlags() error {
+func checkForbiddenFlags() error {
 	for _, arg := range os.Args[1:] {
-		if len(arg) > 1 && arg[0] == '-' {
-			flagName := strings.TrimLeft(arg[1:], "-")
-			if _, ok := CommandForbiddenFlags[flagName]; ok {
-				return fmt.Errorf("command contains forbidden flag: %s", flagName)
-			}
+		if len(arg) == 0 || arg[0] != '-' {
+			continue
+		}
+
+		flagName := strings.TrimLeft(arg[1:], "-")
+		if _, ok := commandForbiddenFlags[flagName]; ok {
+			return fmt.Errorf("command contains forbidden flag: %s", flagName)
 		}
 	}
 
@@ -121,38 +144,38 @@ func CheckForbiddenFlags() error {
 }
 
 func PrepareAppCfg(ctx context.Context,
+	loggerBuilderSvc loggerService,
+	errFmtSvc errorFormatterService,
 	wrappedBaseCfgSvc *BaseConfigWrapper,
-	stdLogger *log.Logger,
 ) (*Config, *commonVault.Service, error) {
 	baseCfg, loggerCfg, commandCfg := wrappedBaseCfgSvc.BaseConfig,
 		wrappedBaseCfgSvc.LoggerConfig, wrappedBaseCfgSvc.CommandConfig
 
-	vaultSecretSvc, err := PrepareVault(ctx, baseCfg, stdLogger)
+	vaultSecretSvc, err := PrepareVault(ctx, errFmtSvc,
+		baseCfg, loggerBuilderSvc)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, errFmtSvc.ErrorNoWrap(err)
 	}
 
 	err = vaultSecretSvc.LoadSecrets(ctx)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, errFmtSvc.ErrorNoWrap(err)
 	}
 
-	appCfgPreparerSrv := commonConfig.NewConfigManager()
-	wrappedConfig := &Config{}
-	err = appCfgPreparerSrv.PrepareTo(wrappedConfig).With(baseCfg,
-		loggerCfg, vaultSecretSvc).Do(ctx)
+	appCfgPreparerSrv := commonConfig.NewConfigManager(errFmtSvc)
+	appConfig := &Config{}
+
+	err = appCfgPreparerSrv.PrepareTo(appConfig).With(baseCfg,
+		loggerCfg, vaultSecretSvc, commandCfg).Do(ctx)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, errFmtSvc.ErrorNoWrap(err)
 	}
 
-	wrappedConfig.baseAppCfgSvc = baseCfg
-	wrappedConfig.loggerCfgSvc = loggerCfg
-	wrappedConfig.CommandConfig = commandCfg
-
-	return wrappedConfig, vaultSecretSvc, nil
+	return appConfig, vaultSecretSvc, nil
 }
 
 func PrepareBaseConfig(ctx context.Context,
+	errFmtSvc errorFormatterService,
 	applicationName string,
 	releaseTag,
 	commitID,
@@ -162,31 +185,35 @@ func PrepareBaseConfig(ctx context.Context,
 ) (*BaseConfigWrapper, error) {
 	commandCfg, err := PrepareCommand()
 	if err != nil {
-		return nil, err
+		return nil, errFmtSvc.ErrorNoWrap(err)
 	}
 
-	flagManagerSvc, err := commonConfig.NewLdFlagsManager(releaseTag,
+	flagManagerSvc, err := commonConfig.NewLdFlagsManager(errFmtSvc, releaseTag,
 		commitID, shortCommitID,
 		buildNumber, buildDateTS)
 	if err != nil {
-		return nil, err
+		return nil, errFmtSvc.ErrorNoWrap(err)
 	}
 
-	err = commonConfig.LoadLocalEnvIfDev()
-	if err != nil {
-		return nil, err
+	envPath := commandCfg.GetCommandEnvPath()
+	if envPath != nil && *envPath != "" {
+		loadErr := commonConfig.LoadEnvFromFile(*envPath)
+		if loadErr != nil {
+			return nil, errFmtSvc.ErrorNoWrap(loadErr)
+		}
 	}
 
-	baseCfgPreparerSvc := commonConfig.NewConfigManager()
+	baseCfgPreparerSvc := commonConfig.NewConfigManager(errFmtSvc)
 	baseCfg := commonConfig.NewBaseConfig(applicationName)
-	err = baseCfgPreparerSvc.PrepareTo(baseCfg).With(flagManagerSvc).Do(ctx)
+
+	err = baseCfgPreparerSvc.PrepareTo(baseCfg).With(flagManagerSvc, errFmtSvc).Do(ctx)
 	if err != nil {
-		return nil, err
+		return nil, errFmtSvc.ErrorNoWrap(err)
 	}
 
-	loggerConfig, err := PrepareLogger(ctx, baseCfg)
+	loggerConfig, err := PrepareLogger(ctx, baseCfg, errFmtSvc)
 	if err != nil {
-		return nil, err
+		return nil, errFmtSvc.ErrorNoWrap(err)
 	}
 
 	return &BaseConfigWrapper{

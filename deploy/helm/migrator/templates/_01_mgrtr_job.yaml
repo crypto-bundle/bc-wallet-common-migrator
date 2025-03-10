@@ -1,0 +1,58 @@
+{{/*
+Copyright (c) 2023-2025 Aleksei Kotelnikov(gudron2s@gmail.com)
+License: MIT NON-AI
+*/}}
+
+{{- define "bc-wallet-common-mgrtr.job.tpl" -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "_mgrtr.app.name" . }}
+  labels:
+    {{- include "_mgrtr.app.labels" . | nindent 4 }}
+  {{- with .Values.mgrtr.jobAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      name: {{ include "_mgrtr.app.name" . }}
+      labels:
+        {{- include "_mgrtr.app.selectorLabels" . | nindent 8 }}
+      annotations:
+      {{- with .Values.mgrtr.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+        {{- include "_mgrtr.vault_agent_annotations" . | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      {{- with .Values.mgrtr.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.mgrtr.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ .Values.mgrtr.serviceAccount.name | quote }}
+      containers:
+        - name: {{ include "_mgrtr.app.name" . }}-migrate
+          image: {{ .Values.mgrtr.image.path }}:{{ .Values.mgrtr.image.tag }}
+          imagePullPolicy: {{ .Values.mgrtr.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.mgrtr.securityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.mgrtr.resources | nindent 12 }}
+          env:
+            {{ include "_mgrtr.env_common" . | nindent 12 }}
+            {{ include "_mgrtr.env_vault" . | nindent 12 }}
+            {{ include "_mgrtr.env_store" . | nindent 12 }}
+            {{ include "_mgrtr.env_app_migrator" . | nindent 12 }}
+          args:
+            - "/opt/appworker/migrator"
+            - "-dir"
+            - {{ .Values.mgrtr.migration_dir }}
+            - "up"
+{{- end -}}
